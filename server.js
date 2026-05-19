@@ -1,14 +1,10 @@
 const express = require('express')
-export const app = express()
+const app = express()
 
 app.use(express.json())
 
 app.get('/', (req, res) => {
   res.json({ message: 'API funcionando!' })
-})
-
-app.get('/', (req, res) => {
-  
 })
 
 app.listen(3000, () => {

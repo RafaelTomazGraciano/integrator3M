@@ -3,7 +3,7 @@ import { authRuan } from './auth'
 
 const array = ["https://api-apostadores-fight-azure.vercel.app/apostadores", "https://api-sd-df8o.onrender.com/apostadores"]
 
-async function getApostadores(app) {
+export async function getApostadores(app) {
 	app.get("/apostadores", (req, res) => {
 		let str = null
 		const first = Math.random() > 0.5
@@ -15,7 +15,7 @@ async function getApostadores(app) {
 				}
 			})
 		}
-		else{
+		else {
 			str = await fetch(array[1])
 		}
 		const json = await str.json()
@@ -27,7 +27,7 @@ async function getApostadores(app) {
 async function getApostadoresById(app) {
 	app.get("/apostadores/:id", (req, res) => {
         const id = req.params.id
-		let str = await fetch(`${array[0]}/${id}`, {
+		const str = await fetch(`${array[0]}/${id}`, {
 				method: "GET",
 				headers: {
 					Authorization: `Bearer ${await authRuan()}`
@@ -40,13 +40,41 @@ async function getApostadoresById(app) {
 }
 
 async function createApostadores(app) {
-	app.post("/apostadores", (req, res) => {})
+	app.post("/apostadores", (req, res) => {
+		const body = req.body
+		let str = await fetch(array[0], {
+			method: "POST",
+			body: body,
+			headers: {
+				Authorization: `Bearer ${await authRuan()}`
+			}
+		})
+		str = await fetch(array[1], {
+			method: "POST",
+			body: body
+		})
+		res.send(body)
+	})
 }
 
 async function updateApostadores(app) {
-	app.put("/apostadores/:id", (req, res) => {})
+	app.put("/apostadores/:id", (req, res) => {
+		const id = req.params.id
+		const body = req.body
+		let str = await fetch(`${array[0]}/${id}`, {
+			method: "PUT",
+			body: body,
+			Authorization: `Bearer ${await authRuan()}`
+		})
+		let str = await fetch(`${array[1]}/${id}`, {
+			method: "PUT",
+			body: body,
+		})
+	})
 }
 
 async function deleteApostadores(app) {
-	app.delete("/apostadores/:id", (req, res) => {})
+	app.delete("/apostadores/:id", (req, res) => {
+		
+	})
 }

@@ -5,7 +5,7 @@ function getLutadores(app){
 
 }
 
-function getLuadoresById(app){
+function getLutadoresById(app){
 
 }
 

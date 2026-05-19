@@ -29,3 +29,6 @@ export async function authDuduzao(){
     const json = await res.json()
     return json.token
 }
+
+// Gustav
+export async function auth
