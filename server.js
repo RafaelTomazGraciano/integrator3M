@@ -1,5 +1,5 @@
 import express from 'express'
-import { generateKey, gerarAssinatura } from "./auth.js"
+import { generateKey } from "./auth.js"
 import * as apostas from "./apostas.js";
 import * as apostadores from "./apostadores.js"
 import * as lutadores from "./lutadores.js"
@@ -39,7 +39,6 @@ lutas.deleteLutas(app)
 app.listen(3000, async () => {
   try {
     await generateKey()
-    await initLittleFire()
   } catch (error) {
     console.error('Falha ao gerar chaves', error.message)
   }

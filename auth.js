@@ -1,4 +1,5 @@
 import fs from 'node:fs'
+import crypto from 'node:crypto'
 
 // Ruan
 export async function authRuan() {
@@ -18,7 +19,6 @@ export async function authRuan() {
 
 // Foguinho
 const API_NAME = "bet3M";
-const URL = process.env.URL_LUTAS || "";
 
 function carregarChavePrivada() {
   if (process.env.PRIVATE_KEY_PEM) {
@@ -42,13 +42,12 @@ export function gerarAssinatura(rota) {
   return assinatura.toString("base64");
 }
 
-function headersRSA(rota) {
+export function headersRSA(rota) {
   return {
     "x-api-nome": API_NAME,
     "x-assinatura": gerarAssinatura(rota),
   };
 }
-
 
 // Vitor
 
