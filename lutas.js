@@ -1,9 +1,9 @@
-const express = require('express')
+
 
 const array = ["https://bet3m-production.up.railway.app/lutas", "littefire.com"]    
 
-async function getLutas(app) {
-	app.get("/lutas", (req, res) => {
+export async function getLutas(app) {
+	app.get("/lutas", async (req, res) => {
 		const first = Math.random() > 0.5
 		let str = null
 		if (first) {
@@ -29,8 +29,8 @@ async function getLutas(app) {
 	})
 }
 
-async function getLutasById(app){
-    app.get("/lutas/:id", (req, res) => {
+export async function getLutasById(app){
+    app.get("/lutas/:id", async (req, res) => {
 		const first = Math.random() > 0.5
 		let str = null
 		if (first) {
@@ -57,9 +57,10 @@ async function getLutasById(app){
 	})
 }
 
-async function createLutas(app){
-    app.post("/lutas", (req, res) => {
-		str = await fetch(array[0], {
+export async function createLutas(app){
+    app.post("/lutas", async (req, res) => {
+		const body = JSON.stringify(req.body)
+		const request1 = fetch(array[0], {
 			method: "POST",
 			headers: {
 				"X-API-KEY": "bet3M-UENP",
@@ -67,7 +68,7 @@ async function createLutas(app){
 			body: JSON.stringify(req.body)
 		})
 
-		str = await fetch(array[1], {
+		const request2 = fetch(array[1], {
 			method: "POST",
 			headers: {
 				//TODO
@@ -75,23 +76,24 @@ async function createLutas(app){
 			},
 			body: JSON.stringify(req.body)
 		})
-		
+		await Promise.all([request1, request2])
+		res.send({body})
 	})
 }
 
-async function updateLutas(app){
-    app.put("/lutas/:id", (req, res) => {
+export async function updateLutas(app){
+    app.put("/lutas/:id", async (req, res) => {
 		const body = JSON.stringify(req.body)
 		const id = req.params.id
-		await fetch(`${array[0]}/${id}`, {
+		const request1 = fetch(`${array[0]}/${id}`, {
 			method: "PUT",
-			body: body,
 			headers: {
 				"X-API-KEY": "bet3M-UENP",
-			}
+			},
+			body: body,
 		})
 
-		await fetch(`${array[1]}/${id}`, {
+		const request2 = fetch(`${array[1]}/${id}`, {
 			method: "PUT",
 			body: body,
 			headers: {
@@ -99,28 +101,29 @@ async function updateLutas(app){
 				"CRIPTOGRAFIA": null,
 			}
 		})
-
+		await Promise.all([request1, request2])
+		res.send({msg: "Atualizado"})
 	})
 }
 
-async function deleteLutas(app){
-    app.delete("/lutas/:id", (req, res) => {
+export async function deleteLutas(app){
+    app.delete("/lutas/:id", async (req, res) => {
 		const id = req.params.id
-		await fetch(`${array[0]}/${id}`, {
+		const request1 = fetch(`${array[0]}/${id}`, {
 			method: "DELETE",
-			body: body,
 			headers: {
 				"X-API-KEY": "bet3M-UENP",
 			}
 		})
 
-		await fetch(`${array[1]}/${id}`, {
+		const request2 = fetch(`${array[1]}/${id}`, {
 			method: "DELETE",
-			body: body,
 			headers: {
 				//TODO
 				"CRIPTOGRAFIA": null,
 			}
 		})
+		await Promise.all([request1, request2])
+		res.send({msg: "Deletado"})
 	})
 }

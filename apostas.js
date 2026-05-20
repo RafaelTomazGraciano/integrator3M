@@ -1,10 +1,9 @@
-const express = require('express')
-import { authDuduzao } from './auth'
+import { authDuduzao } from './auth.js'
 
 const array = ["https://api-aposta-lutas.vercel.app/apostas", "other"]
 
-async function getApostas(app) {
-    app.get("/apostas", (req, res) => {
+export async function getApostas(app) {
+    app.get("/apostas", async (req, res) => {
         let str = null
         const first = Math.random() > 0.5
         if (first) {
@@ -30,8 +29,8 @@ async function getApostas(app) {
     })
 }
 
-async function getApostasById(app) {
-    app.get("/apostas/:id", (req, res) => {
+export async function getApostasById(app) {
+    app.get("/apostas/:id", async (req, res) => {
         let str = null
         const first = Math.random() > 0.5
         if (first) {
@@ -57,9 +56,10 @@ async function getApostasById(app) {
     })
 }
 
-async function createApostas(app){
-    app.post("/apostas", (req, res) => {
-		str = await fetch(array[0], {
+export async function createApostas(app){
+    app.post("/apostas", async (req, res) => {
+		const body = JSON.stringify(req.body)
+		const request1 = fetch(array[0], {
 			method: "POST",
 			headers: {
 				Authorization: `Bearer ${await authDuduzao()}`
@@ -67,7 +67,7 @@ async function createApostas(app){
 			body: JSON.stringify(req.body)
 		})
 
-		str = await fetch(array[1], {
+		const request2 = fetch(array[1], {
 			method: "POST",
 			headers: {
 				//TODO
@@ -75,15 +75,17 @@ async function createApostas(app){
 			},
 			body: JSON.stringify(req.body)
 		})
-		
+
+		await Promise.all([request1, request2])
+		res.send({body})
 	})
 }
 
-async function updateApostas(app) {
-    app.put("/apostas/:id", (req, res) => {
-		const body = JSON.stringify(req.body)
+export async function updateApostas(app) {
+    app.put("/apostas/:id", async (req, res) => {
 		const id = req.params.id
-		await fetch(`${array[0]}/${id}`, {
+		const body = JSON.stringify(req.body)
+		const request1 = fetch(`${array[0]}/${id}`, {
 			method: "PUT",
 			body: body,
 			headers: {
@@ -91,7 +93,7 @@ async function updateApostas(app) {
 			}
 		})
 
-		await fetch(`${array[1]}/${id}`, {
+		const request2 = fetch(`${array[1]}/${id}`, {
 			method: "PUT",
 			body: body,
 			headers: {
@@ -99,15 +101,16 @@ async function updateApostas(app) {
 				"CRIPTOGRAFIA": null,
 			}
 		})
-
+		await Promise.all([request1, request2])
+		res.send({msg: "Atualizado"})
 	})
 }
 
-async function deleteApostas(app){
-    app.put("/apostas/:id", (req, res) => {
+export async function deleteApostas(app){
+    app.delete("/apostas/:id", async (req, res) => {
 		const body = JSON.stringify(req.body)
 		const id = req.params.id
-		await fetch(`${array[0]}/${id}`, {
+		const request1 = fetch(`${array[0]}/${id}`, {
 			method: "DELETE",
 			body: body,
 			headers: {
@@ -115,7 +118,7 @@ async function deleteApostas(app){
 			}
 		})
 
-		await fetch(`${array[1]}/${id}`, {
+		const request2 = fetch(`${array[1]}/${id}`, {
 			method: "DELETE",
 			body: body,
 			headers: {
@@ -123,6 +126,7 @@ async function deleteApostas(app){
 				"CRIPTOGRAFIA": null,
 			}
 		})
-
+		await Promise.all([request1, request2])
+		res.send({msg: "Deletado"})
 	})
 }
