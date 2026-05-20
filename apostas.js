@@ -4,53 +4,84 @@ const array = ["https://api-aposta-lutas.vercel.app/apostas", "other"]
 
 export async function getApostas(app) {
     app.get("/apostas", async (req, res) => {
-        let str = null
         const first = Math.random() > 0.5
-        if (first) {
-            str = await fetch(array[0], {
-                method: "GET",
-                headers: {
-                    Authorization: `Bearer ${await authDuduzao()}`
+        try {
+            let str
+            if (first) {
+                str = await fetch(array[0], {
+                    method: "GET",
+                    headers: { Authorization: `Bearer ${await authDuduzao()}` }
+                })
+            } else {
+                str = await fetch(array[1], {
+                    method: "GET",
+                    headers: { "CRIPTOGRAFIA": null }
+                })
+            }
+            const json = await str.json()
+            return res.send(json)
+        } catch (err) {
+            try {
+                let str
+                if (!first) {
+                    str = await fetch(array[0], {
+                        method: "GET",
+                        headers: { Authorization: `Bearer ${await authDuduzao()}` }
+                    })
+                } else {
+                    str = await fetch(array[1], {
+                        method: "GET",
+                        headers: { "CRIPTOGRAFIA": null }
+                    })
                 }
-            })
+                const json = await str.json()
+                return res.send(json)
+            } catch (err2) {
+                return res.status(500).send({ error: err2.message })
+            }
         }
-        else{
-            str = await fetch(array[1], {
-                method: "GET",
-                headers: {
-                    //TODO
-                    "CRIPTOGRAFIA": null,
-                }
-            })
-        }
-        const json = await str.json()
-        res.send(json)
     })
 }
 
 export async function getApostasById(app) {
     app.get("/apostas/:id", async (req, res) => {
-        let str = null
         const first = Math.random() > 0.5
-        if (first) {
-            str = await fetch(`${array[0]}/${req.params.id}`, {
-                method: "GET",
-                headers: {
-                    Authorization: `Bearer ${await authDuduzao()}`
+        const id = req.params.id
+        try {
+            let str
+            if (first) {
+                str = await fetch(`${array[0]}/${id}`, {
+                    method: "GET",
+                    headers: { Authorization: `Bearer ${await authDuduzao()}` }
+                })
+            } else {
+                str = await fetch(`${array[1]}/${id}`, {
+                    method: "GET",
+                    headers: { "CRIPTOGRAFIA": null }
+                })
+            }
+            const json = await str.json()
+            return res.send(json)
+        } catch (err) {
+            try {
+                let str
+                if (!first) {
+                    str = await fetch(`${array[0]}/${id}`, {
+                        method: "GET",
+                        headers: { Authorization: `Bearer ${await authDuduzao()}` }
+                    })
+                } else {
+                    str = await fetch(`${array[1]}/${id}`, {
+                        method: "GET",
+                        headers: { "CRIPTOGRAFIA": null }
+                    })
                 }
-            })
+                const json = await str.json()
+                return res.send(json)
+            } catch (err2) {
+                return res.status(500).send({ error: err2.message })
+            }
         }
-        else{
-            str = await fetch(`${array[1]}/${req.params.id}`, {
-                method: "GET",
-                headers: {
-                    //TODO
-                    "CRIPTOGRAFIA": null,
-                }
-            })
-        }
-        const json = await str.json()
-        res.send(json)
     })
 }
 

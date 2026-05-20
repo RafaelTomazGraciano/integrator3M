@@ -4,35 +4,49 @@ const array = ["https://lutadores-api-22f61a69f511.herokuapp.com/lutadores", "ht
 
 export async function getLutadores(app){
     app.get("/lutadores", async (req, res) => {
-		const first = Math.random() > 0.5
-		let str = null
-		if (first) {
-			str = await fetch(array[0])
-            str = await decryptResponse(str)
-		}
-        else{
-            str = await fetch(array[1])
+        const first = Math.random() > 0.5
+		console.log("Tentando primeiro:", first ? "API 0 (Heroku)" : "API 1 (Render)");
+        try {
+            let str = await fetch(array[first ? 0 : 1])
+            if (first) str = await decryptResponse(str)
+            return res.send(await str.json())
+        } catch (err) {
+            try {
+                let str = await fetch(array[first ? 1 : 0])
+                if (!first) str = await decryptResponse(str) 
+                return res.send(await str.json())
+            } catch (err2) {
+                return res.status(500).send({ error: err2.message })
+            }
         }
-		const json = await str.json()
-		res.send(json)
-	})
+    })
 }
 
-export async function getLutadoresById(app){
-	app.get("/lutadores/:id", async (req, res) => {
-		const first = Math.random() > 0.5
-		const id = req.params.id
-		let str = null
-		if (first) {
-			str = await fetch(`${array[0]}/${id}`)
-			str = await decryptResponse(str)
-		}
-        else {
-            str = await fetch(`${array[1]}/${id}`)
+export async function getLutadoresById(app) {
+    app.get("/lutadores/:id", async (req, res) => {
+        const first = Math.random() > 0.5
+        const id = req.params.id
+        let str = null
+        try {
+            if (first) {
+                str = await fetch(`${array[0]}/${id}`)
+                str = await decryptResponse(str)
+            } else {
+                str = await fetch(`${array[1]}/${id}`)
+            }
+            const json = await str.json()
+            res.send(json)
+        } catch (err) {
+            try {
+                str = await fetch(`${array[first ? 1 : 0]}/${id}`)
+                if (!first) str = await decryptResponse(str)
+                const json = await str.json()
+                res.send(json)
+            } catch (err2) {
+                res.status(500).send({ error: err2.message })
+            }
         }
-		const json = await str.json()
-		res.send(json)
-	})
+    })
 }
 
 export async function createLutadores(app){

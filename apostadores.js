@@ -3,23 +3,38 @@ import { authRuan } from './auth.js'
 const array = ["https://api-apostadores-fight-azure.vercel.app/apostadores", "https://api-sd-df8o.onrender.com/apostadores"]
 
 export async function getApostadores(app) {
-	app.get("/apostadores", async (req, res) => {
-		let str = null
-		const first = Math.random() > 0.5
-		if (first) {
-			str = await fetch(array[0], {
-				method: "GET",
-				headers: {
-					Authorization: `Bearer ${await authRuan()}`,
-				},
-			})
-		}
-		else {
-			str = await fetch(array[1])
-		}
-		const json = await str.json()
-		res.send(json)
-	})
+    app.get("/apostadores", async (req, res) => {
+        const first = Math.random() > 0.5
+        try {
+            let str
+            if (first) {
+                str = await fetch(array[0], {
+                    method: "GET",
+                    headers: { Authorization: `Bearer ${await authRuan()}` }
+                })
+            } else {
+                str = await fetch(array[1])
+            }
+            const json = await str.json()
+            return res.send(json)
+        } catch (err) {
+            try {
+                let str
+                if (!first) {
+                    str = await fetch(array[0], {
+                        method: "GET",
+                        headers: { Authorization: `Bearer ${await authRuan()}` }
+                    })
+                } else {
+                    str = await fetch(array[1])
+                }
+                const json = await str.json()
+                return res.send(json)
+            } catch (err2) {
+                return res.status(500).send({ error: err2.message })
+            }
+        }
+    })
 }
 
 export async function getApostadoresById(app) {

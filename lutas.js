@@ -3,56 +3,86 @@
 const array = ["https://bet3m-production.up.railway.app/lutas", "littefire.com"]    
 
 export async function getLutas(app) {
-	app.get("/lutas", async (req, res) => {
-		const first = Math.random() > 0.5
-		let str = null
-		if (first) {
-			str = await fetch(array[0], {
-				method: "GET",
-				headers: {
-					"X-API-KEY": "bet3M-UENP"
-				}
-			})
-		}
-        else{
-            str = await fetch(array[1], {
-				method: "GET",
-				headers: {
-					//TODO
-					"CRIPTOGRAFIA": null,
-				}
-			})
+    app.get("/lutas", async (req, res) => {
+        const first = Math.random() > 0.5
+        try {
+            let str
+            if (first) {
+                str = await fetch(array[0], {
+                    method: "GET",
+                    headers: { "X-API-KEY": "bet3M-UENP" }
+                })
+            } else {
+                str = await fetch(array[1], {
+                    method: "GET",
+                    headers: { "CRIPTOGRAFIA": null }
+                })
+            }
+            const json = await str.json()
+            return res.send(json)
+        } catch (err) {
+            try {
+                let str
+                if (!first) {
+                    str = await fetch(array[0], {
+                        method: "GET",
+                        headers: { "X-API-KEY": "bet3M-UENP" }
+                    })
+                } else {
+                    str = await fetch(array[1], {
+                        method: "GET",
+                        headers: { "CRIPTOGRAFIA": null }
+                    })
+                }
+                const json = await str.json()
+                return res.send(json)
+            } catch (err2) {
+                return res.status(500).send({ error: err2.message })
+            }
         }
-		const json = await str.json()
-		res.send(json)
-	})
+    })
 }
-
+ 
 export async function getLutasById(app){
     app.get("/lutas/:id", async (req, res) => {
-		const first = Math.random() > 0.5
-		let str = null
-		if (first) {
-			str = await fetch(`${array[0]}/${req.params.id}`, {
-				method: "GET",
-				headers: {
-					"X-API-KEY": "bet3M-UENP"
-				}
-				
-			})
-		}
-        else{
-            str = await fetch(`${array[1]}/${req.params.id}`, {
-				method: "GET",
-				headers: {
-					//TODO
-					"CRIPTOGRAFIA": null,
-				}
-			})
+        const first = Math.random() > 0.5
+        const id = req.params.id
+        try {
+            let str
+            if (first) {
+                str = await fetch(`${array[0]}/${id}`, {
+                    method: "GET",
+                    headers: { "X-API-KEY": "bet3M-UENP" }
+                })
+            } else {
+                str = await fetch(`${array[1]}/${id}`, {
+                    method: "GET",
+                    headers: { "CRIPTOGRAFIA": null }
+                })
+            }
+            const json = await str.json()
+            return res.send(json)
+        } catch (err) {
+            try {
+                let str
+                if (!first) {
+                    str = await fetch(`${array[0]}/${id}`, {
+                        method: "GET",
+                        headers: { "X-API-KEY": "bet3M-UENP" }
+                    })
+                } else {
+                    str = await fetch(`${array[1]}/${id}`, {
+                        method: "GET",
+                        headers: { "CRIPTOGRAFIA": null }
+                    })
+                }
+                const json = await str.json()
+                return res.send(json)
+            } catch (err2) {
+                return res.status(500).send({ error: err2.message })
+            }
         }
-		const json = await str.json()
-		res.send(json)
-	})
+    })
 }
 
 export async function createLutas(app){

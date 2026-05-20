@@ -37,6 +37,10 @@ lutas.updateLutas(app)
 lutas.deleteLutas(app)
 
 app.listen(3000, async () => {
-  await generateKey()
+  try {
+    await generateKey()
+  } catch (error) {
+    console.error('Falha ao gerar chaves', error.message)
+  }
   console.log('Servidor rodando em http://localhost:3000')
 })
