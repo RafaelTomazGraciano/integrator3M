@@ -2,6 +2,23 @@ import { authRuan } from './auth.js'
 
 const array = ["https://api-apostadores-fight-azure.vercel.app/apostadores", "https://api-sd-df8o.onrender.com/apostadores"]
 
+
+/* 
+Array0
+{
+    "nome": "Ricardo",
+    "idade": 50,
+    "chavePix": "123456789"
+}
+
+Array1
+{
+    "nome": "Ricardo",
+    "idade": 50,
+    "chave_pix": "123456789"
+}
+*/
+
 export async function getApostadores(app) {
     app.get("/apostadores", async (req, res) => {
         const first = Math.random() > 0.5
@@ -54,16 +71,28 @@ export async function getApostadoresById(app) {
 export async function createApostadores(app) {
 	app.post("/apostadores", async (req, res) => {
 		const body = req.body
+
+		const valorPix = req.body.chavePix || req.body.chave_pix;
+        const baseBody = { ...req.body };
+        delete baseBody.chavePix;
+        delete baseBody.chave_pix;
+        const bodyApi0 = { ...baseBody, chavePix: valorPix };
+        const bodyApi1 = { ...baseBody, chave_pix: valorPix };
+
 		const request1 = fetch(array[0], {
 			method: "POST",
-			body: JSON.stringify(body),
 			headers: {
+				"Content-Type": "application/json",
 				Authorization: `Bearer ${await authRuan()}`
-			}
+			},
+			body: JSON.stringify(bodyApi0),
 		})
 		const request2 = fetch(array[1], {
 			method: "POST",
-			body: JSON.stringify(body)
+			headers:{
+				"Content-Type": "application/json",
+			},
+			body: JSON.stringify(bodyApi1)
 		})
 		await Promise.all([request1, request2])
 		res.send(req.body)
@@ -74,16 +103,28 @@ export async function updateApostadores(app) {
 	app.put("/apostadores/:id", async (req, res) => {
 		const id = req.params.id
 		const body = req.body
+
+		const valorPix = req.body.chavePix || req.body.chave_pix;
+        const baseBody = { ...req.body };
+        delete baseBody.chavePix;
+        delete baseBody.chave_pix;
+        const bodyApi0 = { ...baseBody, chavePix: valorPix };
+        const bodyApi1 = { ...baseBody, chave_pix: valorPix };
+
 		const request1 = fetch(`${array[0]}/${id}`, {
 			method: "PUT",
 			headers: {
+				"Content-Type": "application/json",
                 Authorization: `Bearer ${await authRuan()}`
             },
-			body: JSON.stringify(body)
+			body: JSON.stringify(bodyApi0)
 		})
 		const request2 = fetch(`${array[1]}/${id}`, {
 			method: "PUT",
-			body: JSON.stringify(body),
+			headers:{
+				"Content-Type": "application/json",
+			},
+			body: JSON.stringify(bodyApi1),
 		})
 		await Promise.all([request1, request2])
 		res.send(req.body)
