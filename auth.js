@@ -1,3 +1,5 @@
+import fs from 'node:fs'
+
 // Ruan
 export async function authRuan() {
     const res = await fetch("https://api-apostadores-fight-azure.vercel.app/login", {
@@ -15,6 +17,38 @@ export async function authRuan() {
 }
 
 // Foguinho
+const API_NAME = "bet3M";
+const URL = process.env.URL_LUTAS || "";
+
+function carregarChavePrivada() {
+  if (process.env.PRIVATE_KEY_PEM) {
+    return process.env.PRIVATE_KEY_PEM.replace(/\\n/g, "\n");
+  }
+
+  return fs.readFileSync("private_key.pem", "utf8");
+}
+
+function gerarAssinatura(rota) {
+  const privateKey = carregarChavePrivada();
+
+  const mensagem = `${API_NAME}:${rota}`;
+
+  const assinatura = crypto.sign("sha256", Buffer.from(mensagem), {
+    key: privateKey,
+    padding: crypto.constants.RSA_PKCS1_PSS_PADDING,
+    saltLength: crypto.constants.RSA_PSS_SALTLEN_MAX_SIGN,
+  });
+
+  return assinatura.toString("base64");
+}
+
+function headersRSA(rota) {
+  return {
+    "x-api-nome": API_NAME,
+    "x-assinatura": gerarAssinatura(rota),
+  };
+}
+
 
 // Vitor
 

@@ -1,6 +1,9 @@
 
 
-const array = ["https://bet3m-production.up.railway.app/lutas", "littefire.com"]    
+const array = [
+  "https://bet3m-production.up.railway.app/lutas",
+  "https://betting-api-lutas.vercel.app/lutas",
+];    
 
 export async function getLutas(app) {
     app.get("/lutas", async (req, res) => {
