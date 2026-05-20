@@ -28,7 +28,7 @@ function carregarChavePrivada() {
   return fs.readFileSync("private_key.pem", "utf8");
 }
 
-function gerarAssinatura(rota) {
+export function gerarAssinatura(rota) {
   const privateKey = carregarChavePrivada();
 
   const mensagem = `${API_NAME}:${rota}`;
