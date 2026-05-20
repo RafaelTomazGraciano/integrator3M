@@ -10,8 +10,8 @@ export async function getApostadores(app) {
 			str = await fetch(array[0], {
 				method: "GET",
 				headers: {
-					Authorization: `Bearer ${await authRuan()}`
-				}
+					Authorization: `Bearer ${await authRuan()}`,
+				},
 			})
 		}
 		else {

@@ -5,7 +5,10 @@ export async function authRuan() {
         body: JSON.stringify({
             "usuario": "admin",
             "senha": "123"
-        })
+        }),
+        headers: {
+            "Content-Type": "application/json"
+        }
     })
     const json = await res.json()
     return json.token
