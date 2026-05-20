@@ -18,8 +18,7 @@ export async function getApostadores(app) {
 			str = await fetch(array[1])
 		}
 		const json = await str.json()
-		const responseStr = JSON.stringify(json)
-		res.send(responseStr)
+		res.send(json)
 	})
 }
 
@@ -33,8 +32,7 @@ export async function getApostadoresById(app) {
 				}
 			})
 		const json = await str.json()
-		const responseStr = JSON.stringify(json)
-		res.send(responseStr)
+		res.send(json)
 	})
 }
 
@@ -53,7 +51,7 @@ export async function createApostadores(app) {
 			body: JSON.stringify(body)
 		})
 		await Promise.all([request1, request2])
-		res.send({body})
+		res.send(req.body)
 	})
 }
 
@@ -73,7 +71,7 @@ export async function updateApostadores(app) {
 			body: JSON.stringify(body),
 		})
 		await Promise.all([request1, request2])
-		res.send({msg: "Atualizado"})
+		res.send(req.body)
 	})
 }
 

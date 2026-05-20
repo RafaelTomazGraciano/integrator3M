@@ -24,8 +24,7 @@ export async function getApostas(app) {
             })
         }
         const json = await str.json()
-        const responseStr = JSON.stringify(json)
-        res.send(responseStr)
+        res.send(json)
     })
 }
 
@@ -51,8 +50,7 @@ export async function getApostasById(app) {
             })
         }
         const json = await str.json()
-        const responseStr = JSON.stringify(json)
-        res.send(responseStr)
+        res.send(json)
     })
 }
 
@@ -77,7 +75,7 @@ export async function createApostas(app){
 		})
 
 		await Promise.all([request1, request2])
-		res.send({body})
+		res.send(req.body)
 	})
 }
 
@@ -102,7 +100,7 @@ export async function updateApostas(app) {
 			}
 		})
 		await Promise.all([request1, request2])
-		res.send({msg: "Atualizado"})
+		res.send(req.body)
 	})
 }
 

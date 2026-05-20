@@ -24,8 +24,7 @@ export async function getLutas(app) {
 			})
         }
 		const json = await str.json()
-		const responseStr = JSON.stringify(json)
-		res.send(responseStr)
+		res.send(json)
 	})
 }
 
@@ -52,8 +51,7 @@ export async function getLutasById(app){
 			})
         }
 		const json = await str.json()
-		const responseStr = JSON.stringify(json)
-		res.send(responseStr)
+		res.send(json)
 	})
 }
 
@@ -77,7 +75,7 @@ export async function createLutas(app){
 			body: JSON.stringify(req.body)
 		})
 		await Promise.all([request1, request2])
-		res.send({body})
+		res.send(req.body)
 	})
 }
 
@@ -102,7 +100,7 @@ export async function updateLutas(app){
 			}
 		})
 		await Promise.all([request1, request2])
-		res.send({msg: "Atualizado"})
+		res.send(req.body)
 	})
 }
 

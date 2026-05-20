@@ -14,25 +14,24 @@ export async function getLutadores(app){
             str = await fetch(array[1])
         }
 		const json = await str.json()
-		const responseStr = JSON.stringify(json)
-		res.send(responseStr)
+		res.send(json)
 	})
 }
 
 export async function getLutadoresById(app){
 	app.get("/lutadores/:id", async (req, res) => {
 		const first = Math.random() > 0.5
+		const id = req.params.id
 		let str = null
 		if (first) {
-			str = await fetch(`${array[0]}/${req.params.id}`)
+			str = await fetch(`${array[0]}/${id}`)
 			str = await decryptResponse(str)
 		}
-        else{
-            str = await fetch(`${array[1]}/${req.params.id}`)
+        else {
+            str = await fetch(`${array[1]}/${id}`)
         }
 		const json = await str.json()
-		const responseStr = JSON.stringify(json)
-		res.send(responseStr)
+		res.send(json)
 	})
 }
 
@@ -41,7 +40,7 @@ export async function createLutadores(app){
 		const body = JSON.stringify(req.body)
 		const { nome, apelido, categoria, arte } = req.body;
 		
-		const request1 = fetch(`array[0]?nome=${nome}&apelido=${apelido}&categoria=${categoria}&arte=${arte}`, {
+		const request1 = fetch(`${array[0]}?nome="${nome}"&apelido="${apelido}"&categoria="${categoria}"&arte="${arte}"`, {
 			method: "POST"
 		})
 
@@ -50,7 +49,7 @@ export async function createLutadores(app){
 			body: JSON.stringify(req.body)
 		})
 		await Promise.all([request1, request2])
-		res.send({body})
+		res.send(req.body)
 	})
 }
 
@@ -69,7 +68,7 @@ export async function updateLutadores(app){
 			body: body
 		})
 		await Promise.all([request1, request2])
-		res.send({msg: "Atualizado"})
+		res.send(req.body)
 	})
 }
 
