@@ -1,4 +1,5 @@
 import express from 'express'
+import { apiKeyAuth } from './security.js';
 import { generateKey } from "./auth.js"
 import * as apostas from "./apostas.js";
 import * as apostadores from "./apostadores.js"
@@ -7,6 +8,7 @@ import * as lutas from "./lutas.js";
 
 const app = express()
 app.use(express.json())
+app.use(apiKeyAuth)
 
 app.get('/', (req, res) => {
   res.json({ rotas: ["/apostas", "/apostadores", "/lutadores", "/lutas"] })
