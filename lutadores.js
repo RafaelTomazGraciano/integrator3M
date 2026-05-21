@@ -5,7 +5,6 @@ const array = ["https://lutadores-api-22f61a69f511.herokuapp.com/lutadores", "ht
 export async function getLutadores(app){
     app.get("/lutadores", async (req, res) => {
         const first = Math.random() > 0.5
-		console.log("Tentando primeiro:", first ? "API 0 (Heroku)" : "API 1 (Render)");
         try {
             let str = await fetch(array[first ? 0 : 1])
             if (first) str = await decryptResponse(str)
@@ -55,11 +54,17 @@ export async function createLutadores(app){
 		const { nome, apelido, categoria, arte } = req.body;
 		
 		const request1 = fetch(`${array[0]}?nome="${nome}"&apelido="${apelido}"&categoria="${categoria}"&arte="${arte}"`, {
-			method: "POST"
+			method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            }
 		})
 
 		const request2 = fetch(array[1], {
 			method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
 			body: JSON.stringify(req.body)
 		})
 		await Promise.all([request1, request2])
@@ -74,11 +79,17 @@ export async function updateLutadores(app){
 		const { nome, apelido, categoria, arte } = req.body;
 
 		const request1 = fetch(`${array[0]}/${id}?nome=${nome}&apelido=${apelido}&categoria=${categoria}&arte=${arte}`,{
-			method: "PUT"
+			method: "PUT",
+            headers: {
+                "Content-Type": "application/json"
+            }
 		})
 
 		const request2 = fetch(`${array[1]}/${id}`, {
 			method: "PUT",
+            headers: {
+                "Content-Type": "application/json"
+            },
 			body: body
 		})
 		await Promise.all([request1, request2])
