@@ -78,36 +78,58 @@ export async function updateLutadores(app){
 		const body = JSON.stringify(req.body)
 		const { nome, apelido, categoria, arte } = req.body;
 
-		const request1 = fetch(`${array[0]}/${id}?nome=${nome}&apelido=${apelido}&categoria=${categoria}&arte=${arte}`,{
-			method: "PUT",
-            headers: {
-                "Content-Type": "application/json"
-            }
-		})
+		const [res1, res2] = await Promise.allSettled([
+			fetch(`${array[0]}/${id}?nome=${nome}&apelido=${apelido}&categoria=${categoria}&arte=${arte}`, {
+				method: "PUT",
+				headers: { "Content-Type": "application/json" }
+			}),
+			fetch(`${array[1]}/${id}`, {
+				method: "PUT",
+				headers: { "Content-Type": "application/json" },
+				body: body
+			})
+		])
 
-		const request2 = fetch(`${array[1]}/${id}`, {
-			method: "PUT",
-            headers: {
-                "Content-Type": "application/json"
-            },
-			body: body
+		const status1 = res1.status === "fulfilled" ? res1.value.status : null
+		const status2 = res2.status === "fulfilled" ? res2.value.status : null
+		const ok1 = status1 >= 200 && status1 < 300
+		const ok2 = status2 >= 200 && status2 < 300
+
+		if (!ok1 && !ok2) return res.status(404).send({ error: "Não encontrado em nenhuma API" })
+
+		return res.send({
+			msg: "Processado",
+			data: req.body,
+			apis: [
+				{ api: 0, status: status1, ok: ok1 },
+				{ api: 1, status: status2, ok: ok2 }
+			]
 		})
-		await Promise.all([request1, request2])
-		res.send(req.body)
 	})
 }
 
 export async function deleteLutadores(app){
     app.delete("/lutadores/:id", async (req, res) => {
 		const id = req.params.id
-		const request1 = fetch(`${array[0]}/${id}`,{
-			method: "DELETE"
-		})
 
-		const request2 = fetch(`${array[1]}/${id}`, {
-			method: "DELETE"
+		const [res1, res2] = await Promise.allSettled([
+			fetch(`${array[0]}/${id}`, { method: "DELETE" }),
+			fetch(`${array[1]}/${id}`, { method: "DELETE" })
+		])
+
+		const status1 = res1.status === "fulfilled" ? res1.value.status : null
+		const status2 = res2.status === "fulfilled" ? res2.value.status : null
+		const ok1 = status1 >= 200 && status1 < 300
+		const ok2 = status2 >= 200 && status2 < 300
+
+		if (!ok1 && !ok2) return res.status(404).send({ error: "Não encontrado em nenhuma API" })
+
+		return res.send({
+			msg: "Processado",
+			apis: [
+				{ api: 0, status: status1, ok: ok1 },
+				{ api: 1, status: status2, ok: ok2 }
+			]
 		})
-		await Promise.all([request1, request2])
-		res.send({msg: "Deletado"})
 	})
 }
