@@ -16,7 +16,7 @@ npm run dev
 
 URL rodando localmente: `http://localhost:3000`
 
-URL para acessar remotamente: ` `
+URL para acessar remotamente: `integrator3m-production.up.railway.app`
 
 ## Autenticação
 
