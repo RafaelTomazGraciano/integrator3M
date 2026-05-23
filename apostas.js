@@ -110,7 +110,7 @@ export async function getApostasById(app) {
 export async function createApostas(app) {
 	app.post("/apostas", async (req, res) => {
 		const chinaJson = convertToChina(req.body)
-
+ 
 		const [res1, res2] = await Promise.allSettled([
 			fetch(array[0], {
 				method: "POST",
@@ -129,8 +129,22 @@ export async function createApostas(app) {
 				body: JSON.stringify(authChina(chinaJson))
 			})
 		])
-
-		return res.send(req.body)
+ 
+		const status1 = res1.status === "fulfilled" ? res1.value.status : null
+		const status2 = res2.status === "fulfilled" ? res2.value.status : null
+		const ok1 = status1 >= 200 && status1 < 300
+		const ok2 = status2 >= 200 && status2 < 300
+ 
+		if (!ok1 && !ok2) return res.status(500).send({ error: "Falha em ambas as APIs" })
+ 
+		return res.send({
+			msg: "Processado",
+			data: req.body,
+			apis: [
+				{ api: 0, status: status1, ok: ok1 },
+				{ api: 1, status: status2, ok: ok2 }
+			]
+		})
 	})
 }
 

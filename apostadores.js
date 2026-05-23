@@ -70,34 +70,49 @@ export async function getApostadoresById(app) {
 
 export async function createApostadores(app) {
 	app.post("/apostadores", async (req, res) => {
-		const body = req.body
-
 		const valorPix = req.body.chavePix || req.body.chave_pix;
         const baseBody = { ...req.body };
         delete baseBody.chavePix;
         delete baseBody.chave_pix;
         const bodyApi0 = { ...baseBody, chavePix: valorPix };
         const bodyApi1 = { ...baseBody, chave_pix: valorPix };
-
-		const request1 = fetch(array[0], {
-			method: "POST",
-			headers: {
-				"Content-Type": "application/json",
-				Authorization: `Bearer ${await authRuan()}`
-			},
-			body: JSON.stringify(bodyApi0),
+ 
+		const [res1, res2] = await Promise.allSettled([
+			fetch(array[0], {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+					Authorization: `Bearer ${await authRuan()}`
+				},
+				body: JSON.stringify(bodyApi0),
+			}),
+			fetch(array[1], {
+				method: "POST",
+				headers:{
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify(bodyApi1)
+			})
+		])
+ 
+		const status1 = res1.status === "fulfilled" ? res1.value.status : null
+		const status2 = res2.status === "fulfilled" ? res2.value.status : null
+		const ok1 = status1 >= 200 && status1 < 300
+		const ok2 = status2 >= 200 && status2 < 300
+ 
+		if (!ok1 && !ok2) return res.status(500).send({ error: "Falha em ambas as APIs" })
+ 
+		return res.send({
+			msg: "Processado",
+			data: req.body,
+			apis: [
+				{ api: 0, status: status1, ok: ok1 },
+				{ api: 1, status: status2, ok: ok2 }
+			]
 		})
-		const request2 = fetch(array[1], {
-			method: "POST",
-			headers:{
-				"Content-Type": "application/json",
-			},
-			body: JSON.stringify(bodyApi1)
-		})
-		await Promise.all([request1, request2])
-		res.send(req.body)
 	})
 }
+
 
 export async function updateApostadores(app) {
 	app.put("/apostadores/:id", async (req, res) => {

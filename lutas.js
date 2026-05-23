@@ -105,7 +105,7 @@ export async function getLutas(app) {
 				}
 				const json = await str.json()
 				const response = convertToStandart(json)
-				return res.send(json)
+				return res.send(response)
 			} catch (err2) {
 				return res.status(500).send({ error: err2.message })
 			}
@@ -149,7 +149,7 @@ export async function getLutasById(app){
 				}
 				const json = await str.json()
 				const response = convertToStandart(json)
-				return res.send(json)
+				return res.send(response)
 			} catch (err2) {
 				return res.status(500).send({ error: err2.message })
 			}
@@ -160,23 +160,41 @@ export async function getLutasById(app){
 export async function createLutas(app){
 	app.post("/lutas", async (req, res) => {
 		const [bet3mJson, littleFireJson] = getLutasObj(req.body)
-
-		const request1 = fetch(array[0], {
-			method: "POST",
-			headers: {
-				"X-API-KEY": "bet3M-UENP",
-			},
-			body: JSON.stringify(bet3mJson)
+ 
+		const [res1, res2] = await Promise.allSettled([
+			fetch(array[0], {
+				method: "POST",
+				headers: {
+					"X-API-KEY": "bet3M-UENP",
+					"Content-Type": "application/json"
+				},
+				body: JSON.stringify(bet3mJson)
+			}),
+			fetch(array[1], {
+				method: "POST",
+				headers: {
+					...headersRSA(baseRoute),
+					"Content-Type": "application/json"
+				},
+				body: JSON.stringify(littleFireJson)
+			})
+		])
+ 
+		const status1 = res1.status === "fulfilled" ? res1.value.status : null
+		const status2 = res2.status === "fulfilled" ? res2.value.status : null
+		const ok1 = status1 >= 200 && status1 < 300
+		const ok2 = status2 >= 200 && status2 < 300
+ 
+		if (!ok1 && !ok2) return res.status(500).send({ error: "Falha em ambas as APIs" })
+ 
+		return res.send({
+			msg: "Processado",
+			data: req.body,
+			apis: [
+				{ api: 0, status: status1, ok: ok1 },
+				{ api: 1, status: status2, ok: ok2 }
+			]
 		})
-
-		const request2 = fetch(array[1], {
-			method: "POST",
-			headers: headersRSA(`${baseRoute}`),
-			body: JSON.stringify(littleFireJson)
-		})
-		const [res1, res2] = await Promise.all([request1, request2])
-
-		res.send(req.body)
 	})
 }
 
@@ -188,7 +206,10 @@ export async function updateLutas(app){
 		const [res1, res2] = await Promise.allSettled([
 			fetch(`${array[0]}/${id}`, {
 				method: "PUT",
-				headers: { "X-API-KEY": "bet3M-UENP" },
+				headers: { 
+					"X-API-KEY": "bet3M-UENP",
+        			"Content-Type": "application/json"
+				},
 				body: JSON.stringify(bet3mJson),
 			}),
 			fetch(`${array[1]}/${id}`, {
@@ -223,7 +244,10 @@ export async function deleteLutas(app){
 		const [res1, res2] = await Promise.allSettled([
 			fetch(`${array[0]}/${id}`, {
 				method: "DELETE",
-				headers: { "X-API-KEY": "bet3M-UENP" }
+				headers: { 
+					"X-API-KEY": "bet3M-UENP",
+        			"Content-Type": "application/json"
+				}
 			}),
 			fetch(`${array[1]}/${id}`, {
 				method: "DELETE",
