@@ -8,22 +8,26 @@ function convertToChina(data) {
 		"valor": data.valor,
 		"idLuta": data.id_luta,
 		"idLutador1": data.id_lutador,
-		"idLutador2": null
+		"idLutador2": null,
 	}
 }
 
 function convertToCommon(data) {
+	
 	if (Array.isArray(data)) {
 		if("id_lutador" in data[0]) return data
 		const newArray = new Array(data.length)
+		console.log(data)
 		for (let i = 0; i < data.length; i++) {
 			newArray[i] = {
-				"valor": data.valor,
-				"id_apostador": data.idApostador,
-				"id_luta": data.idLuta,
-				"id_lutador": data.idLutador1
+				"valor": data[i].valor,
+				"id_apostador": data[i].idApostador,
+				"id_luta": data[i].idLuta,
+				"id_lutador": data[i].idLutador1,
+				"id": data[i].id
 			}
 		}
+		return newArray
 	}
 
 	if ("id_lutador" in data) return data;
@@ -32,7 +36,8 @@ function convertToCommon(data) {
 		"valor": data.valor,
 		"id_apostador": data.idApostador,
 		"id_luta": data.idLuta,
-		"id_lutador": data.idLutador1
+		"id_lutador": data.idLutador1,
+		"id": data.id
 	};
 }
 
@@ -58,7 +63,7 @@ export async function getApostas(app) {
 					}
 				})
 			}
-			const json = await str.json()
+			const json = convertToCommon(await str.json())
 			return res.send(json)
 		} catch (err) {
 			try {
@@ -77,7 +82,7 @@ export async function getApostas(app) {
 						headers: { "X-Encrypted": 'true' }
 					})
 				}
-				const json = await str.json()
+				const json = convertToCommon(await str.json())
 				return res.send(json)
 			} catch (err2) {
 				return res.status(500).send({ error: err2.message })
@@ -94,7 +99,7 @@ export async function getApostasById(app) {
 				method: "GET",
 				headers: { Authorization: `Bearer ${await authDuduzao()}` }
 			})
-			const json = await str.json()
+			const json = convertToCommon(await str.json())
 			return res.send(json)
 		} catch (err) {
 			return res.status(500).send({ error: err.message })
