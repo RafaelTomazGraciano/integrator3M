@@ -1,130 +1,155 @@
-import { authDuduzao } from './auth.js'
+import { authChina, authDuduzao } from './auth.js'
 
-const array = ["https://api-aposta-lutas.vercel.app/apostas", "other"]
+const array = ["https://api-aposta-lutas.vercel.app/apostas", "http://187.77.235.119:5555/apostas"]
+
+function convertToChina(data) {
+	return {
+		"idApostador": data.id_apostador,
+		"valor": data.valor,
+		"idLuta": data.id_luta,
+		"idLutador1": data.id_lutador,
+		"idLutador2": null
+	}
+}
+
+function convertToCommon(data) {
+	if (Array.isArray(data)) {
+		if("id_lutador" in data[0]) return data
+		const newArray = new Array(data.length)
+		for (let i = 0; i < data.length; i++) {
+			newArray[i] = {
+				"valor": data.valor,
+				"id_apostador": data.idApostador,
+				"id_luta": data.idLuta,
+				"id_lutador": data.idLutador1
+			}
+		}
+	}
+
+	if ("id_lutador" in data) return data;
+
+	return {
+		"valor": data.valor,
+		"id_apostador": data.idApostador,
+		"id_luta": data.idLuta,
+		"id_lutador": data.idLutador1
+	};
+}
 
 export async function getApostas(app) {
-    app.get("/apostas", async (req, res) => {
-        const first = Math.random() > 0.5
-        try {
-            let str
-            if (first) {
-                str = await fetch(array[0], {
-                    method: "GET",
-                    headers: { Authorization: `Bearer ${await authDuduzao()}` }
-                })
-            } else {
-                str = await fetch(array[1], {
-                    method: "GET",
-                    headers: { "CRIPTOGRAFIA": null }
-                })
-            }
-            const json = await str.json()
-            return res.send(json)
-        } catch (err) {
-            try {
-                let str
-                if (!first) {
-                    str = await fetch(array[0], {
-                        method: "GET",
-                        headers: { Authorization: `Bearer ${await authDuduzao()}` }
-                    })
-                } else {
-                    str = await fetch(array[1], {
-                        method: "GET",
-                        headers: { "CRIPTOGRAFIA": null }
-                    })
-                }
-                const json = await str.json()
-                return res.send(json)
-            } catch (err2) {
-                return res.status(500).send({ error: err2.message })
-            }
-        }
-    })
+	app.get("/apostas", async (req, res) => {
+		const first = Math.random() > 0.5
+		try {
+			let str
+			if (first) {
+				str = await fetch(array[0], {
+					method: "GET",
+					headers: { 
+						Authorization: `Bearer ${await authDuduzao()}`,
+						"Content-Type": "application/json"
+					}
+				})
+			} else {
+				str = await fetch(array[1], {
+					method: "GET",
+					headers: {
+						"X-Encrypted": 'true',
+						"Content-Type": "application/json"
+					}
+				})
+			}
+			const json = await str.json()
+			return res.send(json)
+		} catch (err) {
+			try {
+				let str
+				if (!first) {
+					str = await fetch(array[0], {
+						method: "GET",
+						headers: {
+							Authorization: `Bearer ${await authDuduzao()}`,
+							"Content-Type": "application/json"
+						}
+					})
+				} else {
+					str = await fetch(array[1], {
+						method: "GET",
+						headers: { "X-Encrypted": 'true' }
+					})
+				}
+				const json = await str.json()
+				return res.send(json)
+			} catch (err2) {
+				return res.status(500).send({ error: err2.message })
+			}
+		}
+	})
 }
 
 export async function getApostasById(app) {
-    app.get("/apostas/:id", async (req, res) => {
-        const first = Math.random() > 0.5
-        const id = req.params.id
-        try {
-            let str
-            if (first) {
-                str = await fetch(`${array[0]}/${id}`, {
-                    method: "GET",
-                    headers: { Authorization: `Bearer ${await authDuduzao()}` }
-                })
-            } else {
-                str = await fetch(`${array[1]}/${id}`, {
-                    method: "GET",
-                    headers: { "CRIPTOGRAFIA": null }
-                })
-            }
-            const json = await str.json()
-            return res.send(json)
-        } catch (err) {
-            try {
-                let str
-                if (!first) {
-                    str = await fetch(`${array[0]}/${id}`, {
-                        method: "GET",
-                        headers: { Authorization: `Bearer ${await authDuduzao()}` }
-                    })
-                } else {
-                    str = await fetch(`${array[1]}/${id}`, {
-                        method: "GET",
-                        headers: { "CRIPTOGRAFIA": null }
-                    })
-                }
-                const json = await str.json()
-                return res.send(json)
-            } catch (err2) {
-                return res.status(500).send({ error: err2.message })
-            }
-        }
-    })
+	app.get("/apostas/:id", async (req, res) => {
+		const id = req.params.id
+		try {
+			const str = await fetch(`${array[0]}/${id}`, {
+				method: "GET",
+				headers: { Authorization: `Bearer ${await authDuduzao()}` }
+			})
+			const json = await str.json()
+			return res.send(json)
+		} catch (err) {
+			return res.status(500).send({ error: err.message })
+		}
+	})
 }
 
-export async function createApostas(app){
-    app.post("/apostas", async (req, res) => {
-		const body = JSON.stringify(req.body)
-		const request1 = fetch(array[0], {
-			method: "POST",
-			headers: {
-				Authorization: `Bearer ${await authDuduzao()}`
-			},
-			body: JSON.stringify(req.body)
-		})
+export async function createApostas(app) {
+	app.post("/apostas", async (req, res) => {
+		const chinaJson = convertToChina(req.body)
 
-		const request2 = fetch(array[1], {
-			method: "POST",
-			headers: {
-				//TODO
-				"CRIPTOGRAFIA": null,
-			},
-			body: JSON.stringify(req.body)
-		})
+		const [res1, res2] = await Promise.allSettled([
+			fetch(array[0], {
+				method: "POST",
+				headers: {
+					Authorization: `Bearer ${await authDuduzao()}`,
+					"Content-Type": "application/json"
+				},
+				body: JSON.stringify(req.body)
+			}),
+			fetch(array[1], {
+				method: "POST",
+				headers: {
+					"X-Encrypted": "true",
+					"Content-Type": "application/json"
+				},
+				body: JSON.stringify(authChina(chinaJson))
+			})
+		])
 
-		await Promise.all([request1, request2])
-		res.send(req.body)
+		return res.send(req.body)
 	})
 }
 
 export async function updateApostas(app) {
-    app.put("/apostas/:id", async (req, res) => {
+	app.put("/apostas/:id", async (req, res) => {
 		const id = req.params.id
-		const body = JSON.stringify(req.body)
+		const body = req.body
 
 		const [res1, res2] = await Promise.allSettled([
 			fetch(`${array[0]}/${id}`, {
 				method: "PUT",
-				body: body,
-				headers: { Authorization: `Bearer ${await authDuduzao()}` }
+				body: JSON.stringify(body),
+				headers: { 
+					Authorization: `Bearer ${await authDuduzao()}`,
+					"Content-Type": "application/json"
+				}
 			}),
 			fetch(`${array[1]}/${id}`, {
 				method: "PUT",
-				body: body,
-				headers: { "CRIPTOGRAFIA": null }
+				body: JSON.stringify(authChina({valor: body.valor})),
+				headers: { 
+					"X-Encrypted": 'true',
+					"Content-Type": "application/json"
+				 }
 			})
 		])
 
@@ -146,19 +171,26 @@ export async function updateApostas(app) {
 	})
 }
 
-export async function deleteApostas(app){
-    app.delete("/apostas/:id", async (req, res) => {
+export async function deleteApostas(app) {
+	app.delete("/apostas/:id", async (req, res) => {
 		const id = req.params.id
 
 		const [res1, res2] = await Promise.allSettled([
 			fetch(`${array[0]}/${id}`, {
 				method: "DELETE",
-				headers: { Authorization: `Bearer ${await authDuduzao()}` }
+				headers: { 
+					Authorization: `Bearer ${await authDuduzao()}`,
+					"Content-Type": "application/json"
+				}
 			}),
 
 			fetch(`${array[1]}/${id}`, {
 				method: "DELETE",
-				headers: { "CRIPTOGRAFIA": null }
+				headers: {
+						"X-Encrypted": 'true',
+						"Content-Type": "application/json"
+				},
+				body: JSON.stringify(authChina({}))
 			})
 		])
 
