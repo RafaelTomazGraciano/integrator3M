@@ -17,7 +17,6 @@ function convertToCommon(data) {
 	if (Array.isArray(data)) {
 		if("id_lutador" in data[0]) return data
 		const newArray = new Array(data.length)
-		console.log(data)
 		for (let i = 0; i < data.length; i++) {
 			newArray[i] = {
 				"valor": data[i].valor,
