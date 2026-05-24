@@ -51,6 +51,7 @@ export async function getLutadoresById(app) {
 export async function createLutadores(app){
 	app.post("/lutadores", async (req, res) => {
 		const { nome, apelido, categoria, arte } = req.body;
+		req.body.id = {id: 0 }
 		
 		const [res1, res2] = await Promise.allSettled([
 			fetch(`${array[0]}?nome="${nome}"&apelido="${apelido}"&categoria="${categoria}"&arte="${arte}"`, {
